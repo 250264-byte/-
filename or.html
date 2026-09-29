@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таксопарк «ДРАЙВ»</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { 
+            border-radius: 0 !important; 
+            user-select: auto !important;
+            -webkit-user-select: auto !important;
+        }
+        body { background-color: #0a0a0a; color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .bg-yellow { background-color: #ffcc00; }
+        .text-yellow { color: #ffcc00; }
+        .border-yellow { border-color: #ffcc00; }
+        .hover-bg-yellow:hover { background-color: #e6b800; }
+        .nav-btn.active { color: #ffcc00; border-top: 2px solid #ffcc00; background-color: rgba(255, 204, 0, 0.1); }
+        .page-btn { background-color: #18181b; color: #fff; border: 1px solid #27272a; padding: 8px 16px; font-weight: bold; font-size: 14px; transition: all 0.2s; cursor: pointer; }
+        .page-btn:hover { border-color: #ffcc00; color: #ffcc00; }
+        .page-btn.active { background-color: #ffcc00; color: #000; border-color: #ffcc00; font-weight: 900; }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #27272a; color: #666; }
+        
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-yellow-400 selection:text-black pb-28 relative">
+
+    <!-- HEADER -->
+    <header class="bg-black border-b border-yellow sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchMainPage(1)">
+                    <div class="bg-yellow text-black p-3 font-black text-2xl flex items-center justify-center w-12 h-12">
+                        <i class="fa-solid fa-taxi"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black tracking-widest text-white uppercase leading-none">ТАКСОПАРК <span class="text-yellow">«ДРАЙВ»</span></h1>
+                        <p class="text-xs text-gray-400 tracking-wider uppercase mt-1">Аренда автомобилей для такси</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-6 text-xs">
+                    <div class="hidden lg:block text-right">
+                        <span class="text-gray-400 block">Горячая линия</span>
+                        <a href="tel:+77771234567" class="font-bold text-white hover:text-yellow">+7 (777) 123-45-67</a>
+                    </div>
+                    <div class="hidden lg:block text-right">
+                        <span class="text-gray-400 block">База парка</span>
+                        <span class="font-semibold text-gray-300">г. Алматы, ул. Абая 150</span>
+                    </div>
+                    
+                    <button id="admin-btn" onclick="toggleAdminModal()" class="bg-yellow text-black px-4 py-2.5 font-bold uppercase tracking-wider hover-bg-yellow transition flex items-center gap-2">
+                        <i class="fa-solid fa-lock"></i> <span id="admin-btn-text">Админ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- СТРАНИЦА 1: КАТАЛОГ -->
+        <div id="page-1" class="main-page space-y-8">
+            <div id="view-catalog" class="space-y-8">
+                
+                <!-- БАННЕР-ШАПКА С ПОИСКОМ -->
+                <div class="bg-gradient-to-r from-zinc-950 via-zinc-900 to-amber-950/40 border border-zinc-800 p-6 md:p-10 space-y-4">
+                    <h2 class="text-2xl md:text-4xl font-black uppercase text-white tracking-tight">
+                        Аренда авто под такси с лицензией
+                    </h2>
+                    <p class="text-xs md:text-sm text-gray-300 font-medium max-w-2xl leading-relaxed">
+                        Первый день аренды бесплатно! Все автомобили застрахованы и готовы к работе с Яндекс Про.
+                    </p>
+                    
+                    <!-- ПОЛЕ ПОИСКА И КНОПКА -->
+                    <div class="pt-2 flex flex-col sm:flex-row max-w-2xl">
+                        <input type="text" id="search-input" oninput="handleSearch()" placeholder="Поиск по марке или модели (например: Hyundai, Camry)..." class="w-full bg-white text-black p-3.5 text-sm font-semibold focus:outline-none placeholder-gray-500">
+                        <button onclick="handleSearch()" class="bg-yellow text-black font-black uppercase px-8 py-3.5 text-xs tracking-wider hover-bg-yellow transition flex items-center justify-center gap-2 border-t sm:border-t-0 sm:border-l border-black/10">
+                            <i class="fa-solid fa-magnifying-glass"></i> Найти
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Панель управления админа -->
+                <div id="admin-tools" class="hidden bg-zinc-900 border border-yellow/40 p-4 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase text-yellow"><i class="fa-solid fa-user-shield"></i> Режим администратора</span>
+                    <button onclick="openCarForm()" class="bg-yellow text-black px-5 py-2.5 font-bold uppercase text-xs tracking-wider hover-bg-yellow transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Добавить авто
+                    </button>
+                </div>
+
+                <!-- Карточки автомобилей -->
+                <div id="cars-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                <!-- ЦИФРЫ СТРАНИЦ КАТАЛОГА -->
+                <div class="pt-6 border-t border-zinc-800 flex flex-col items-center gap-3">
+                    <div id="pagination-buttons" class="flex items-center gap-2"></div>
+                    <span id="page-counter-info" class="text-xs text-gray-500 uppercase tracking-widest">Страница 1 из 1</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА 2: УСЛОВИЯ -->
+        <div id="page-2" class="main-page hidden space-y-6">
+            <div class="bg-zinc-900 border border-zinc-800 p-8 space-y-4">
+                <h2 class="text-3xl font-black uppercase text-white">Условия аренды</h2>
+                <p class="text-gray-400 text-sm">Прозрачные правила работы без скрытых комиссий и платежей.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-zinc-900 border border-zinc-800 p-6 space-y-3">
+                    <i class="fa-solid fa-id-card text-yellow text-3xl mb-2"></i>
+                    <h3 class="font-bold text-white uppercase text-base">Водитель</h3>
+                    <p class="text-xs text-gray-400">Возраст от 21 года, стаж вождения от 3 лет.</p>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 p-6 space-y-3">
+                    <i class="fa-solid fa-file-invoice text-yellow text-3xl mb-2"></i>
+                    <h3 class="font-bold text-white uppercase text-base">Документы</h3>
+                    <p class="text-xs text-gray-400">Удостоверение личности, водительские права.</p>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 p-6 space-y-3">
+                    <i class="fa-solid fa-wrench text-yellow text-3xl mb-2"></i>
+                    <h3 class="font-bold text-white uppercase text-base">Обслуживание</h3>
+                    <p class="text-xs text-gray-400">Ремонт, замена масла и ТО полностью за счет парка.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА 3: О НАС -->
+        <div id="page-3" class="main-page hidden space-y-6">
+            <div class="bg-zinc-900 border border-zinc-800 p-8 space-y-4">
+                <h2 class="text-3xl font-black uppercase text-white">О компании</h2>
+                <p class="text-sm text-gray-300 leading-relaxed">
+                    Наш таксопарк «ДРАЙВ» предоставляет технически обслуженные и застрахованные автомобили для работы в такси. 
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-zinc-800 text-center">
+                    <div class="p-4 bg-black/50 border border-zinc-800"><div class="text-2xl font-black text-yellow">5+</div><div class="text-[10px] text-gray-400 uppercase mt-1">Лет работы</div></div>
+                    <div class="p-4 bg-black/50 border border-zinc-800"><div class="text-2xl font-black text-yellow">150+</div><div class="text-[10px] text-gray-400 uppercase mt-1">Машин</div></div>
+                    <div class="p-4 bg-black/50 border border-zinc-800"><div class="text-2xl font-black text-yellow">24/7</div><div class="text-[10px] text-gray-400 uppercase mt-1">Поддержка</div></div>
+                    <div class="p-4 bg-black/50 border border-zinc-800"><div class="text-2xl font-black text-yellow">100%</div><div class="text-[10px] text-gray-400 uppercase mt-1">Выплаты</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА 4: ОТЗЫВЫ -->
+        <div id="page-4" class="main-page hidden space-y-6">
+            <div class="bg-zinc-900 border border-zinc-800 p-8">
+                <h2 class="text-3xl font-black uppercase text-white">Отзывы водителей</h2>
+                <p class="text-gray-400 text-sm mt-1">Мнения тех, кто уже работает с нами.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-zinc-900 border border-zinc-800 p-6 space-y-3">
+                    <div class="flex text-yellow text-xs gap-1"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p class="text-xs text-gray-300">"Машины всегда в отличном состоянии. Ремонт без задержек."</p>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase block">— Руслан К.</span>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 p-6 space-y-3">
+                    <div class="flex text-yellow text-xs gap-1"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p class="text-xs text-gray-300">"Быстрое оформление, хорошая поддержка 24/7."</p>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase block">— Тимур М.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА 5: КОНТАКТЫ -->
+        <div id="page-5" class="main-page hidden space-y-6">
+            <div class="bg-zinc-900 border border-zinc-800 p-8 space-y-6">
+                <h2 class="text-3xl font-black uppercase text-white">Контакты</h2>
+                <div class="space-y-3 text-sm text-gray-300">
+                    <p><i class="fa-solid fa-location-dot text-yellow mr-2"></i> Адрес: г. Алматы, ул. Абая 150</p>
+                    <p><i class="fa-solid fa-phone text-yellow mr-2"></i> Телефон: +7 (777) 123-45-67</p>
+                    <p><i class="fa-solid fa-clock text-yellow mr-2"></i> График работы: 09:00 - 20:00 (Ежедневно)</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER С РАССРИРЕННЫМ ТЕКСТОМ -->
+    <footer class="bg-zinc-950 border-t border-zinc-900 text-gray-400 pt-10 pb-16 px-4 sm:px-6 lg:px-8 mt-12">
+        <div class="max-w-7xl mx-auto space-y-8">
+            
+            <!-- СЕТКА ИНФОРМАЦИОННЫХ БЛОКОВ -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-xs border-b border-zinc-900 pb-8">
+                <div class="space-y-3">
+                    <h3 class="text-yellow font-black uppercase text-sm tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info"></i> О таксопарке «ДРАЙВ»
+                    </h3>
+                    <p class="leading-relaxed text-gray-400">
+                        Таксопарк «ДРАЙВ» — сертифицированный и официальный партнёр Яндекс Про в Алматы. Мы предоставляем полностью подготовленные, технически обслуженные и застрахованные автомобили для работы в пассажирских перевозках. В нашем автопарке представлены модели от Эконом до Бизнес-класса с установленным ГБО и лицензиями.
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="text-yellow font-black uppercase text-sm tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved"></i> Наши преимущества
+                    </h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-yellow mt-0.5"></i> <span><strong>Первый день бесплатно</strong> — старт работы без первоначальных вложений.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-yellow mt-0.5"></i> <span><strong>Моментальные выплаты</strong> — вывод заработанных средств 24/7 на любую карту.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-yellow mt-0.5"></i> <span><strong>Полное ТО за наш счет</strong> — ремонт, замена масла и шин производятся парком.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check text-yellow mt-0.5"></i> <span><strong>Страхование</strong> — все авто застрахованы по программам КАСКО и ОГПО.</span></li>
+                    </ul>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="text-yellow font-black uppercase text-sm tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-user-check"></i> Условия для водителей
+                    </h3>
+                    <p class="leading-relaxed text-gray-400">
+                        Для заключения договора аренды необходимы минимальные требования:
+                    </p>
+                    <ul class="space-y-1.5 list-disc list-inside text-gray-400">
+                        <li>Возраст водителя — от 21 года</li>
+                        <li>Водительский стаж — от 3 лет</li>
+                        <li>Удостоверение личности и права (РК или СНГ)</li>
+                        <li>Желание зарабатывать и аккуратное вождение</li>
+                    </ul>
+                    <p class="text-[11px] text-gray-500 pt-1">
+                        Процесс оформления занимает не более 30 минут. Вы сможете выехать на первый заказ сразу в день обращения.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ПОДРОБНЫЙ ТЕКСТ ОБ АРЕНДЕ -->
+            <div class="text-[11px] text-gray-500 space-y-3 leading-relaxed bg-black/40 p-6 border border-zinc-900">
+                <h4 class="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                    Аренда авто под такси в Алматы — Прозрачное сотрудничество и высокий доход
+                </h4>
+                <p>
+                    Аренда автомобиля под такси в парке «ДРАЙВ» — это удобный и надежный способ стабильного заработка без износа собственного транспортного средства. Мы предоставляем машины с приоритетом заказов в системе Яндекс Такси, что обеспечивает максимальную загрузку водителя в любое время суток. Все авто проходят регулярную компьютерную диагностику, плановое обслуживание и предрейсовый осмотр.
+                </p>
+                <p>
+                    Мы гарантируем честные условия сотрудничества: отсутствие скрытых комиссий, фиксированную арендную плату, гибкий график работы (12/12, 24/7, посменный или с выкупом) и персональную техническую поддержку диспетчерской службы 24 часа в сутки.
+                </p>
+            </div>
+
+            <!-- КОПИРАЙТ И ЮРИДИЧЕСКАЯ ИНФОРМАЦИЯ -->
+            <div class="pt-4 border-t border-zinc-900 text-center text-xs text-gray-600 space-y-2">
+                <p>© 2026 Таксопарк «ДРАЙВ». Все права защищены.</p>
+                <p class="text-[10px] text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Официальный сертифицированный партнёр сервиса Яндекс Про в г. Алматы. Информация, представленная на сайте, носит ознакомительный характер и не является публичной офертой. Условия аренды и тарифы могут уточняться у менеджеров парка.
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- КНОПКА ВОЗВРАТА НАВЕРХ (СТРЕЛОЧКА) -->
+    <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="fixed bottom-20 right-4 z-40 bg-yellow text-black w-10 h-10 flex items-center justify-center font-black shadow-lg hover-bg-yellow transition cursor-pointer" title="Наверх">
+        <i class="fa-solid fa-arrow-up text-base"></i>
+    </button>
+
+    <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-black border-t border-yellow">
+        <div class="max-w-7xl mx-auto flex justify-around text-xs font-bold uppercase tracking-wider">
+            <button id="nav-btn-1" onclick="switchMainPage(1)" class="nav-btn active py-3 px-2 text-gray-300 hover:text-yellow flex flex-col items-center gap-1 w-full">
+                <i class="fa-solid fa-car text-sm"></i><span>1. Каталог</span>
+            </button>
+            <button id="nav-btn-2" onclick="switchMainPage(2)" class="nav-btn py-3 px-2 text-gray-300 hover:text-yellow flex flex-col items-center gap-1 w-full">
+                <i class="fa-solid fa-file-contract text-sm"></i><span>2. Условия</span>
+            </button>
+            <button id="nav-btn-3" onclick="switchMainPage(3)" class="nav-btn py-3 px-2 text-gray-300 hover:text-yellow flex flex-col items-center gap-1 w-full">
+                <i class="fa-solid fa-building text-sm"></i><span>3. О нас</span>
+            </button>
+            <button id="nav-btn-4" onclick="switchMainPage(4)" class="nav-btn py-3 px-2 text-gray-300 hover:text-yellow flex flex-col items-center gap-1 w-full">
+                <i class="fa-solid fa-star text-sm"></i><span>4. Отзывы</span>
+            </button>
+            <button id="nav-btn-5" onclick="switchMainPage(5)" class="nav-btn py-3 px-2 text-gray-300 hover:text-yellow flex flex-col items-center gap-1 w-full">
+                <i class="fa-solid fa-headset text-sm"></i><span>5. Контакты</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ВСПЛЫВАЮЩЕЕ (МОДАЛЬНОЕ) ОКНО ИНФОРМАЦИИ ОБ АВТО -->
+    <div id="car-details-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-zinc-900 border border-zinc-700 p-6 md:p-8 max-w-3xl w-full my-8 space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                <span id="detail-category" class="inline-block bg-yellow text-black font-black text-[10px] px-2.5 py-1 uppercase tracking-widest"></span>
+                <button onclick="closeCarDetails()" class="text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <img id="detail-img" src="" class="w-full h-64 object-cover border border-zinc-800">
+                    <div id="detail-thumbnails" class="flex gap-2 overflow-x-auto pb-2"></div>
+                </div>
+                <div class="space-y-4">
+                    <h2 id="detail-title" class="text-2xl font-black uppercase text-white"></h2>
+                    <div class="flex items-center justify-between border-y border-zinc-800 py-3">
+                        <div>
+                            <span class="text-[10px] text-gray-400 uppercase block">Аренда</span>
+                            <div id="detail-price" class="text-xl font-black text-yellow"></div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-gray-400 uppercase block">Депозит</span>
+                            <div id="detail-deposit" class="text-base font-bold text-white"></div>
+                        </div>
+                    </div>
+                    <div class="border border-zinc-800 text-xs">
+                        <div class="p-2.5 bg-zinc-950 flex justify-between"><span class="text-gray-400">Год выпуска:</span><span id="detail-year" class="font-bold text-white"></span></div>
+                        <div class="p-2.5 bg-zinc-900 flex justify-between"><span class="text-gray-400">Коробка передач:</span><span id="detail-trans" class="font-bold text-white"></span></div>
+                        <div class="p-2.5 bg-zinc-950 flex justify-between"><span class="text-gray-400">Тип топлива:</span><span id="detail-fuel" class="font-bold text-white"></span></div>
+                        <div class="p-2.5 bg-zinc-900 flex justify-between"><span class="text-gray-400">Пробег:</span><span id="detail-mileage" class="font-bold text-white"></span></div>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold uppercase text-yellow">Комплектация и описание:</h4>
+                        <p id="detail-desc" class="text-xs text-gray-300 leading-relaxed bg-black/40 p-3 border border-zinc-800 whitespace-pre-line"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-zinc-800 flex justify-end">
+                <button onclick="closeCarDetails()" class="bg-yellow text-black px-6 py-2.5 text-xs font-bold uppercase hover-bg-yellow">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО АДМИНА (ВХОД) -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-700 p-6 max-w-sm w-full space-y-4">
+            <h3 class="text-lg font-black uppercase text-white">Вход в Админку</h3>
+            <input type="password" id="admin-pass" placeholder="Пароль (1234)" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+            <div class="flex justify-end gap-2">
+                <button onclick="toggleAdminModal()" class="px-4 py-2 text-xs uppercase text-gray-400">Отмена</button>
+                <button onclick="loginAdmin()" class="bg-yellow text-black px-5 py-2 text-xs font-bold uppercase">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФОРМА ДОБАВЛЕНИЯ АВТОМОБИЛЯ -->
+    <div id="car-form-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-zinc-900 border border-zinc-700 p-6 max-w-xl w-full my-8 space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                <h3 class="text-lg font-black uppercase text-white">Добавить авто в парк</h3>
+                <button onclick="closeCarForm()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleCarSubmit(event)" class="space-y-4">
+                
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Марка и модель</label>
+                    <input type="text" id="f-title" required placeholder="Например: HYUNDAI SONATA" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Категория / Класс</label>
+                        <select id="f-category" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                            <option value="Эконом">Эконом</option>
+                            <option value="Комфорт">Комфорт</option>
+                            <option value="Комфорт+">Комфорт+</option>
+                            <option value="Бизнес">Бизнес</option>
+                            <option value="Минивэн">Минивэн</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Цена аренды</label>
+                        <input type="text" id="f-price" required placeholder="20 000 ₸/сут" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Залог / Депозит</label>
+                        <input type="text" id="f-deposit" placeholder="30 000 ₸" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Год выпуска</label>
+                        <input type="text" id="f-year" required placeholder="2022" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Коробка передач</label>
+                        <input type="text" id="f-trans" required placeholder="Автомат" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Тип топлива</label>
+                        <select id="f-fuel" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                            <option value="Бензин">Бензин</option>
+                            <option value="Газ / Бензин (ГБО)">Газ / Бензин (ГБО)</option>
+                            <option value="Газ">Газ</option>
+                            <option value="Дизель">Дизель</option>
+                            <option value="Гибрид">Гибрид</option>
+                            <option value="Электро">Электро</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Пробег</label>
+                        <input type="text" id="f-mileage" placeholder="45 000 км" class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">
+                        Загрузить фото с компьютера (Выделите ЛКМ сразу несколько)
+                    </label>
+                    <input type="file" id="f-images" accept="image/*" multiple onchange="handleMultipleImages(event)" class="w-full bg-black border border-zinc-700 p-2 text-xs text-gray-300 border-dashed cursor-pointer">
+                    
+                    <div id="images-preview" class="flex flex-wrap gap-2 mt-3"></div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Описание и комплектация</label>
+                    <textarea id="f-desc" rows="3" placeholder="Кондиционер, кожаный салон, ГБО, парктроники..." class="w-full bg-black border border-zinc-700 p-3 text-sm text-white focus:outline-none focus:border-yellow"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3 border-t border-zinc-800">
+                    <button type="button" onclick="closeCarForm()" class="px-5 py-2.5 text-xs font-bold uppercase text-gray-400 hover:text-white">Отмена</button>
+                    <button type="submit" class="bg-yellow text-black px-6 py-2.5 text-xs font-bold uppercase hover-bg-yellow">Сохранить авто</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isAdmin = false;
+        let catalogPageNum = 1;
+        const itemsPerPage = 3; 
+        let tempImagesList = [];
+        let searchQuery = "";
+
+        const DEFAULT_CARS = [
+            { 
+                id: "car-1", 
+                title: "LEXUS LX 470", 
+                category: "Бизнес",
+                price: "40 000 ₸/сут", 
+                deposit: "50 000 ₸",
+                year: "2000", 
+                trans: "Автомат", 
+                fuel: "Газ / Бензин (ГБО)", 
+                mileage: "80 000 км", 
+                desc: "Полный привод, кожаный салон, отличное состояние.",
+                images: ["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"] 
+            },
+            { 
+                id: "car-2", 
+                title: "HYUNDAI SONATA N LINE", 
+                category: "Комфорт+",
+                price: "25 000 ₸/сут", 
+                deposit: "30 000 ₸",
+                year: "2022", 
+                trans: "Вариатор", 
+                fuel: "Бензин", 
+                mileage: "80 км", 
+                desc: "Новый автомобиль, климат-контроль, подогрев сидений.",
+                images: ["https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80"] 
+            },
+            { 
+                id: "car-3", 
+                title: "MERCEDES-BENZ V-CLASS", 
+                category: "Минивэн",
+                price: "35 000 ₸/сут", 
+                deposit: "40 000 ₸",
+                year: "2014", 
+                trans: "Механика", 
+                fuel: "Дизель", 
+                mileage: "220 000 км", 
+                desc: "Вместительный минивэн, идеален для трансферов.",
+                images: ["https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80"] 
+            },
+            { 
+                id: "car-4", 
+                title: "TOYOTA CAMRY 70", 
+                category: "Комфорт+",
+                price: "30 000 ₸/сут", 
+                deposit: "35 000 ₸",
+                year: "2021", 
+                trans: "Автомат", 
+                fuel: "Бензин", 
+                mileage: "45 000 км", 
+                desc: "Самый популярный седан, низкий расход топлива.",
+                images: ["https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=800&q=80"] 
+            }
+        ];
+
+        let carsDatabase = [...DEFAULT_CARS];
+
+        function switchMainPage(pageNumber) {
+            document.querySelectorAll('.main-page').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            const selectedPage = document.getElementById(`page-${pageNumber}`);
+            const selectedBtn = document.getElementById(`nav-btn-${pageNumber}`);
+
+            if (selectedPage) selectedPage.classList.remove('hidden');
+            if (selectedBtn) selectedBtn.classList.add('active');
+
+            if (pageNumber === 1) {
+                renderCatalog();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleSearch() {
+            const input = document.getElementById("search-input");
+            searchQuery = input ? input.value.trim().toLowerCase() : "";
+            catalogPageNum = 1;
+            renderCatalog();
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById("cars-grid");
+            
+            const filteredCars = carsDatabase.filter(car => {
+                if (!searchQuery) return true;
+                return car.title.toLowerCase().includes(searchQuery) || 
+                       car.category.toLowerCase().includes(searchQuery) ||
+                       (car.fuel && car.fuel.toLowerCase().includes(searchQuery));
+            });
+
+            const totalPages = Math.max(1, Math.ceil(filteredCars.length / itemsPerPage));
+            if (catalogPageNum > totalPages) catalogPageNum = totalPages;
+
+            const start = (catalogPageNum - 1) * itemsPerPage;
+            const currentCars = filteredCars.slice(start, start + itemsPerPage);
+
+            if (currentCars.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-zinc-900 border border-zinc-800 p-8 text-center text-gray-400 space-y-2">
+                        <i class="fa-solid fa-magnifying-glass text-3xl text-yellow mb-2"></i>
+                        <p class="font-bold text-white uppercase text-base">Автомобили не найдены</p>
+                        <p class="text-xs">Попробуйте изменить поисковый запрос.</p>
+                    </div>
+                `;
+            } else {
+                grid.innerHTML = currentCars.map(car => `
+                    <div class="bg-zinc-900 border border-zinc-800 flex flex-col justify-between">
+                        <div>
+                            <div class="h-48 bg-black overflow-hidden relative cursor-pointer" onclick="showCarDetails('${car.id}')">
+                                <img src="${(car.images && car.images[0]) ? car.images[0] : 'https://via.placeholder.com/600'}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                <span class="absolute top-2 left-2 bg-yellow text-black text-[10px] font-black px-2 py-0.5 uppercase tracking-wider">${car.category || 'Комфорт'}</span>
+                            </div>
+                            <div class="p-5 space-y-3">
+                                <h3 class="font-black text-lg text-white uppercase cursor-pointer hover:text-yellow transition" onclick="showCarDetails('${car.id}')">${car.title}</h3>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                                    <div><i class="fa-solid fa-calendar text-yellow mr-1"></i> ${car.year} г.</div>
+                                    <div><i class="fa-solid fa-gear text-yellow mr-1"></i> ${car.trans}</div>
+                                    <div><i class="fa-solid fa-gas-pump text-yellow mr-1"></i> ${car.fuel || 'Бензин'}</div>
+                                    <div><i class="fa-solid fa-gauge text-yellow mr-1"></i> ${car.mileage || '0 км'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0 space-y-3">
+                            <div class="bg-black/60 p-3 border border-zinc-800 flex justify-between items-center">
+                                <span class="text-[10px] text-gray-500 uppercase font-bold">Стоимость аренды</span>
+                                <span class="text-sm font-black text-yellow">${car.price}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="showCarDetails('${car.id}')" class="w-full bg-yellow text-black font-black uppercase text-xs py-3 hover-bg-yellow">Подробнее</button>
+                                ${isAdmin ? `<button onclick="deleteCar('${car.id}')" class="bg-zinc-800 text-red-500 px-3 hover:bg-red-900/50"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById("pagination-buttons");
+            document.getElementById("page-counter-info").innerText = `Страница ${catalogPageNum} из ${totalPages}`;
+
+            let html = `<button onclick="changeCatalogPage(${catalogPageNum - 1})" class="page-btn" ${catalogPageNum === 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-left"></i></button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="changeCatalogPage(${i})" class="page-btn ${i === catalogPageNum ? 'active' : ''}">${i}</button>`;
+            }
+
+            html += `<button onclick="changeCatalogPage(${catalogPageNum + 1})" class="page-btn" ${catalogPageNum === totalPages ? 'disabled' : ''}><i class="fa-solid fa-chevron-right"></i></button>`;
+
+            container.innerHTML = html;
+        }
+
+        function changeCatalogPage(page) {
+            const filteredCars = carsDatabase.filter(car => {
+                if (!searchQuery) return true;
+                return car.title.toLowerCase().includes(searchQuery) || 
+                       car.category.toLowerCase().includes(searchQuery) ||
+                       (car.fuel && car.fuel.toLowerCase().includes(searchQuery));
+            });
+            
+            const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                catalogPageNum = page;
+                renderCatalog();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function showCarDetails(id) {
+            const car = carsDatabase.find(c => c.id === id);
+            if (!car) return;
+
+            document.getElementById("detail-category").innerText = car.category || "Комфорт";
+            document.getElementById("detail-title").innerText = car.title;
+            document.getElementById("detail-price").innerText = car.price;
+            document.getElementById("detail-deposit").innerText = car.deposit || "Без залога";
+            document.getElementById("detail-year").innerText = car.year;
+            document.getElementById("detail-trans").innerText = car.trans;
+            document.getElementById("detail-fuel").innerText = car.fuel || 'Бензин';
+            document.getElementById("detail-mileage").innerText = car.mileage || '0 км';
+            document.getElementById("detail-desc").innerText = car.desc || 'Нет описания';
+
+            const mainImg = document.getElementById("detail-img");
+            const thumbsContainer = document.getElementById("detail-thumbnails");
+
+            const images = car.images && car.images.length ? car.images : ['https://via.placeholder.com/600'];
+            mainImg.src = images[0];
+
+            thumbsContainer.innerHTML = images.map((img) => `
+                <img src="${img}" onclick="document.getElementById('detail-img').src='${img}'" class="w-16 h-16 object-cover border border-zinc-700 cursor-pointer hover:border-yellow">
+            `).join("");
+
+            document.getElementById("car-details-modal").classList.remove("hidden");
+        }
+
+        function closeCarDetails() {
+            document.getElementById("car-details-modal").classList.add("hidden");
+        }
+
+        function handleMultipleImages(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempImagesList.push(e.target.result);
+                    renderImagesPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderImagesPreview() {
+            const container = document.getElementById("images-preview");
+            container.innerHTML = tempImagesList.map((img, idx) => `
+                <div class="relative w-16 h-16 border border-zinc-700">
+                    <img src="${img}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeTempImage(${idx})" class="absolute -top-1 -right-1 bg-red-600 text-white w-4 h-4 flex items-center justify-center text-[10px]">×</button>
+                </div>
+            `).join("");
+        }
+
+        function removeTempImage(index) {
+            tempImagesList.splice(index, 1);
+            renderImagesPreview();
+        }
+
+        function toggleAdminModal() {
+            if (isAdmin) {
+                isAdmin = false;
+                document.getElementById("admin-tools").classList.add("hidden");
+                document.getElementById("admin-btn-text").innerText = "Админ";
+                renderCatalog();
+            } else {
+                document.getElementById("admin-modal").classList.remove("hidden");
+            }
+        }
+
+        function loginAdmin() {
+            if (document.getElementById("admin-pass").value === "1234") {
+                isAdmin = true;
+                document.getElementById("admin-modal").classList.add("hidden");
+                document.getElementById("admin-tools").classList.remove("hidden");
+                document.getElementById("admin-btn-text").innerText = "Выйти";
+                renderCatalog();
+            } else {
+                alert("Неверный пароль (1234)");
+            }
+        }
+
+        function openCarForm() { 
+            tempImagesList = [];
+            renderImagesPreview();
+            document.getElementById("car-form-modal").classList.remove("hidden"); 
+        }
+
+        function closeCarForm() { 
+            document.getElementById("car-form-modal").classList.add("hidden"); 
+        }
+
+        function handleCarSubmit(e) {
+            e.preventDefault();
+
+            const newCar = {
+                id: `car-${Date.now()}`,
+                title: document.getElementById("f-title").value.toUpperCase(),
+                category: document.getElementById("f-category").value,
+                price: document.getElementById("f-price").value,
+                deposit: document.getElementById("f-deposit").value || "Без залога",
+                year: document.getElementById("f-year").value,
+                trans: document.getElementById("f-trans").value,
+                fuel: document.getElementById("f-fuel").value,
+                mileage: document.getElementById("f-mileage").value || "0 км",
+                desc: document.getElementById("f-desc").value,
+                images: tempImagesList.length ? [...tempImagesList] : ["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"]
+            };
+
+            carsDatabase.push(newCar);
+            closeCarForm();
+            
+            catalogPageNum = Math.ceil(carsDatabase.length / itemsPerPage);
+            renderCatalog();
+        }
+
+        function deleteCar(id) {
+            if (confirm("Удалить выбранную авто?")) {
+                carsDatabase = carsDatabase.filter(c => c.id !== id);
+                renderCatalog();
+            }
+        }
+
+        renderCatalog();
+    </script>
+</body>
+</html>
