@@ -15,6 +15,8 @@
             background-image: linear-gradient(to right, rgba(9, 9, 11, 0.9), rgba(9, 9, 11, 0.6)), url('https://st3.depositphotos.com/6013912/33610/i/450/depositphotos_336106876-stock-photo-kazakhstan-almaty-january-20-2020.jpg');
             background-position: center; background-size: cover;
         }
+
+        /* МАЛЕНЬКИЕ СТРЕЛКИ ПО БОКАМ НА 3 СЛАЙДЕ С ВИДЕО */
         .v-arrow-side {
             position: absolute; top: 50%; transform: translateY(-50%);
             background-color: #ef4444; color: #fff; font-weight: 900; font-size: 14px;
@@ -122,6 +124,32 @@
         }
         .car-photo { overflow: hidden; }
         .car-photo img { transition: transform 0.32s ease; }
+        .car-feedback { padding: 0; border: 0; background: transparent; }
+        .feedback-head, .feedback-votes { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+        .feedback-label { color: #a1a1aa; font-size: 9px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+        .feedback-score-line { display: flex; align-items: baseline; gap: 0.35rem; }
+        .feedback-score { color: #facc15; font-size: 14px; font-weight: 900; }
+        .feedback-rating-count { color: #71717a; font-size: 9px; }
+        .feedback-stars { display: flex; gap: 6px; margin: 0.45rem 0; }
+        .feedback-star {
+            display: inline-grid; width: auto; height: auto; padding: 0; place-items: center;
+            border: 0; background: none; box-shadow: none; color: #52525b; font-size: 18px; line-height: 1; cursor: pointer;
+        }
+        .feedback-star.is-active { color: #facc15; }
+        .feedback-vote {
+            display: flex; flex: 1; align-items: center; justify-content: center; gap: 0.35rem;
+            min-height: 30px; border: 1px solid #3f3f46; background: #09090b; color: #a1a1aa;
+            font-size: 10px; font-weight: 800; cursor: pointer;
+        }
+        .feedback-vote b { color: #f4f4f5; }
+        .feedback-vote.is-up { border-color: #166534; color: #4ade80; }
+        .feedback-vote.is-down { border-color: #991b1b; color: #f87171; }
+        .feedback-note { margin-top: 0.4rem; color: #71717a; font-size: 9px; line-height: 1.3; }
+        html[data-theme="light"] .feedback-vote { background: #fff; border-color: #d4d4d8; }
+        html[data-theme="light"] .feedback-label,
+        html[data-theme="light"] .feedback-vote { color: #52525b; }
+        html[data-theme="light"] .feedback-score { color: #a16207; }
+        html[data-theme="light"] .feedback-vote b { color: #18181b; }
         button:focus-visible, a:focus-visible { outline: 2px solid #ef4444; outline-offset: 2px; }
         button:active, a:active { transform: translateY(1px); }
         @media (hover: hover) and (pointer: fine) {
@@ -462,6 +490,64 @@
         ];
 
         let carsDatabase = [...DEFAULT_CARS];
+        const CAR_FEEDBACK_KEY = "drive-car-feedback-v1";
+        let carFeedbackData = {};
+        try {
+            const savedFeedback = JSON.parse(localStorage.getItem(CAR_FEEDBACK_KEY) || "{}");
+            if (savedFeedback && typeof savedFeedback === "object" && !Array.isArray(savedFeedback)) {
+                carFeedbackData = savedFeedback;
+            }
+        } catch {}
+
+        function getCarFeedback(id) {
+            const saved = carFeedbackData[id] || {};
+            const count = value => Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
+            const total = Number(saved.ratingTotal);
+            return {
+                up: count(saved.up),
+                down: count(saved.down),
+                ratingCount: count(saved.ratingCount),
+                ratingTotal: Number.isFinite(total) ? Math.max(0, total) : 0,
+                myVote: saved.myVote === 1 || saved.myVote === -1 ? saved.myVote : 0,
+                myRating: Number.isInteger(saved.myRating) && saved.myRating >= 1 && saved.myRating <= 5 ? saved.myRating : 0
+            };
+        }
+
+        function saveCarFeedback(id, feedback) {
+            carFeedbackData[id] = feedback;
+            try { localStorage.setItem(CAR_FEEDBACK_KEY, JSON.stringify(carFeedbackData)); } catch {}
+            const car = carsDatabase.find(item => item.id === id);
+            const container = [...document.querySelectorAll(".car-feedback")].find(item => item.dataset.carFeedback === id);
+            if (car && container) container.outerHTML = renderCarFeedback(car);
+        }
+
+        function setCarVote(id, vote) {
+            if (vote !== 1 && vote !== -1) return;
+            const feedback = getCarFeedback(id);
+            if (feedback.myVote === vote) {
+                if (vote === 1) feedback.up = Math.max(0, feedback.up - 1);
+                else feedback.down = Math.max(0, feedback.down - 1);
+                feedback.myVote = 0;
+            } else {
+                if (feedback.myVote === 1) feedback.up = Math.max(0, feedback.up - 1);
+                if (feedback.myVote === -1) feedback.down = Math.max(0, feedback.down - 1);
+                if (vote === 1) feedback.up += 1;
+                else feedback.down += 1;
+                feedback.myVote = vote;
+            }
+            saveCarFeedback(id, feedback);
+        }
+
+        function setCarRating(id, rating) {
+            if (!Number.isInteger(rating) || rating < 1 || rating > 5) return;
+            const feedback = getCarFeedback(id);
+            if (feedback.myRating === rating) return;
+            if (feedback.myRating) feedback.ratingTotal = Math.max(0, feedback.ratingTotal - feedback.myRating);
+            else feedback.ratingCount += 1;
+            feedback.ratingTotal += rating;
+            feedback.myRating = rating;
+            saveCarFeedback(id, feedback);
+        }
 
         // Проверенные YouTube-ролики: работа в такси и обзоры автомобилей.
         const VIDEO_LIBRARY = {
@@ -552,6 +638,26 @@
             renderGrid(2, searchQuery2);
         }
 
+        function renderCarFeedback(car) {
+            const feedback = getCarFeedback(car.id);
+            const average = feedback.ratingCount ? (feedback.ratingTotal / feedback.ratingCount).toFixed(1) : "—";
+            return `
+                <section class="car-feedback" data-car-feedback="${car.id}" aria-label="Оценка автомобиля">
+                    <div class="feedback-head">
+                        <span class="feedback-label">Рейтинг</span>
+                        <span class="feedback-score-line"><span class="feedback-score">${average}</span><span class="feedback-rating-count">${feedback.ratingCount ? `(${feedback.ratingCount} оцен.)` : "(нет оценок)"}</span></span>
+                    </div>
+                    <div class="feedback-stars" role="group" aria-label="Поставить оценку от 1 до 5">
+                        ${[1, 2, 3, 4, 5].map(star => `<button type="button" class="feedback-star ${star <= feedback.myRating ? "is-active" : ""}" onclick="setCarRating('${car.id}', ${star})" aria-label="${star} из 5" aria-pressed="${feedback.myRating === star}"><i class="fa-solid fa-star" aria-hidden="true"></i></button>`).join("")}
+                    </div>
+                    <div class="feedback-votes" role="group" aria-label="Голосование за автомобиль">
+                        <button type="button" class="feedback-vote ${feedback.myVote === 1 ? "is-up" : ""}" onclick="setCarVote('${car.id}', 1)" aria-pressed="${feedback.myVote === 1}"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i><span>За</span><b>${feedback.up}</b></button>
+                        <button type="button" class="feedback-vote ${feedback.myVote === -1 ? "is-down" : ""}" onclick="setCarVote('${car.id}', -1)" aria-pressed="${feedback.myVote === -1}"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i><span>Против</span><b>${feedback.down}</b></button>
+                    </div>
+                    <p class="feedback-note">Ваш выбор сохраняется в этом браузере</p>
+                </section>`;
+        }
+
         function renderGrid(pageNum, query) {
             const grid = document.getElementById(`cars-grid-${pageNum}`);
             if (!grid) return;
@@ -577,6 +683,7 @@
                             <img src="${car.images[0]}" alt="${car.title}" class="w-full h-44 object-cover border border-zinc-800">
                             <span class="absolute top-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-1 uppercase">${car.category}</span>
                         </div>
+                        ${renderCarFeedback(car)}
                         <div>
                             <h4 class="font-black text-sm uppercase text-white tracking-wide">${car.title}</h4>
                             <p class="text-xs font-bold text-red-500 mt-0.5">${car.price}</p>
