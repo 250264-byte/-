@@ -240,6 +240,39 @@
         html[data-theme="light"] .fleet-filter:hover { background: #e4e4e7; color: #18181b; }
         html[data-theme="light"] .fleet-filter[aria-pressed="true"] { background: #dc2626; border-color: #ef4444; color: #fff; }
 
+        .poll-shell { max-width: 760px; margin: 0 auto; }
+        .poll-card { padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid #3f3f46; background: #18181b; }
+        .poll-eyebrow { display: flex; align-items: center; gap: 0.6rem; color: #f87171; font-size: 10px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+        .poll-eyebrow i { font-size: 15px; }
+        .poll-question { margin-top: 1rem; color: #f4f4f5; font-size: clamp(1.2rem, 3vw, 1.75rem); font-weight: 900; line-height: 1.15; text-transform: uppercase; }
+        .poll-intro { margin-top: 0.6rem; color: #a1a1aa; font-size: 0.8rem; line-height: 1.55; }
+        .poll-options { display: grid; gap: 0.65rem; margin-top: 1.5rem; }
+        .poll-option { display: grid; grid-template-columns: 1fr; gap: 0.55rem; width: 100%; min-height: 50px; padding: 0.9rem 1rem; border: 1px solid #3f3f46; background: #09090b; color: #f4f4f5; text-align: left; cursor: pointer; transition: border-color 0.2s, background-color 0.2s; }
+        .poll-option:hover { border-color: #ef4444; background: #27272a; }
+        .poll-option.is-selected { border-color: #ef4444; background: rgba(127, 29, 29, 0.25); }
+        .poll-option-main { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+        .poll-option-name { font-size: 0.78rem; font-weight: 900; text-transform: uppercase; }
+        .poll-option-stat { flex: none; color: #a1a1aa; font-size: 0.7rem; font-weight: 800; }
+        .poll-bar { height: 4px; overflow: hidden; background: #3f3f46; }
+        .poll-bar-fill { display: block; height: 100%; background: #ef4444; transition: width 0.3s ease; }
+        .poll-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1rem; margin-top: 1rem; color: #a1a1aa; font-size: 0.7rem; }
+        .poll-status { color: #fca5a5; }
+        .poll-disclaimer { margin-top: 0.75rem; color: #71717a; font-size: 0.65rem; line-height: 1.45; }
+        html[data-theme="light"] .poll-card { background: #fff; border-color: #d4d4d8; }
+        html[data-theme="light"] .poll-question { color: #18181b; }
+        html[data-theme="light"] .poll-intro, html[data-theme="light"] .poll-meta { color: #52525b; }
+        html[data-theme="light"] .poll-option { background: #fafafa; border-color: #d4d4d8; color: #18181b; }
+        html[data-theme="light"] .poll-option:hover { background: #f4f4f5; border-color: #dc2626; }
+        html[data-theme="light"] .poll-option.is-selected { background: #fef2f2; border-color: #dc2626; }
+        html[data-theme="light"] .poll-option-stat { color: #52525b; }
+        html[data-theme="light"] .poll-bar { background: #e4e4e7; }
+        html[data-theme="light"] .poll-status { color: #b91c1c; }
+        html[data-theme="light"] .poll-disclaimer { color: #71717a; }
+        @media (max-width: 480px) {
+            .poll-option { padding: 0.8rem; }
+            .poll-option-main { align-items: flex-start; flex-direction: column; gap: 0.3rem; }
+        }
+
         .car-card {
             transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
         }
@@ -327,6 +360,9 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between pb-24 relative">
 
+    <!-- ФОНОВАЯ МУЗЫКА: положи файл рядом с index.html -->
+    <audio id="bg-music" src="onda-andar-sleep-mode.mp3" loop preload="auto"></audio>
+
     <!-- HEADER -->
     <header class="bg-zinc-950 border-b border-zinc-800 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
@@ -346,7 +382,7 @@
                     <i class="fa-solid fa-lock mr-1"></i> <span id="admin-btn-text">Админ</span>
                 </button>
                 <div id="sound-control" class="sound-control" role="group" aria-label="Фоновая музыка">
-                    <button id="sound-btn" type="button" class="sound-btn lvl-2" aria-label="Выключить музыку" aria-pressed="false" title="Фоновая музыка">
+                    <button id="sound-btn" type="button" class="sound-btn lvl-2" aria-label="Выключить музыку" aria-pressed="false" title="Музыка: ONDA ANDAR — Sleep Mode">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M11 5 6 9H3v6h3l5 4V5Z" fill="currentColor"/>
                             <path class="wave wave-1" d="M15.5 9.5a3.5 3.5 0 0 1 0 5"/>
@@ -357,6 +393,7 @@
                     <div class="sound-panel-wrap">
                         <div class="sound-panel">
                             <button id="sound-mute" type="button" class="sound-mute" aria-label="Выключить музыку" title="Вкл / выкл звук"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+                            <span class="sound-track-name">ONDA ANDAR — Sleep Mode</span>
                             <input id="sound-slider" class="sound-slider" type="range" min="0" max="100" step="1" value="50" aria-label="Громкость музыки">
                             <span id="sound-percent" class="sound-percent" aria-live="off">50%</span>
                         </div>
@@ -410,7 +447,7 @@
 
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
                 <h3 class="text-lg font-black uppercase text-white">Слайд 1 — Автомобили</h3>
-                <span class="text-xs text-zinc-400">1 / 3</span>
+                <span class="text-xs text-zinc-400">1 / 4</span>
             </div>
 
             <div id="cars-grid-1" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -434,7 +471,7 @@
 
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
                 <h3 class="text-lg font-black uppercase text-white">Слайд 2 — Автомобили</h3>
-                <span class="text-xs text-zinc-400">2 / 3</span>
+                <span class="text-xs text-zinc-400">2 / 4</span>
             </div>
 
             <div id="cars-grid-2" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -485,12 +522,29 @@
             </section>
         </div>
 
+        <!-- СЛАЙД 4: ОПРОС ОБ АВТОМОБИЛЯХ -->
+        <div id="page-4" class="main-page hidden space-y-6">
+            <section class="poll-shell" aria-labelledby="poll-question">
+                <div class="poll-card">
+                    <div class="poll-eyebrow"><i class="fa-solid fa-car-side" aria-hidden="true"></i> Опрос · Таксопарк «ДРАЙВ»</div>
+                    <h3 id="poll-question" class="poll-question">Какую машину вы выбрали бы для работы в такси?</h3>
+                    <p class="poll-intro">Выберите один вариант. После голосования появятся результаты; выбор можно изменить.</p>
+                    <div id="poll-options" class="poll-options" role="group" aria-label="Варианты ответа"></div>
+                    <div class="poll-meta">
+                        <span id="poll-total"></span>
+                        <span id="poll-status" class="poll-status" role="status" aria-live="polite"></span>
+                    </div>
+                    <p class="poll-disclaimer">Голоса хранятся только в браузере этого устройства и не суммируются с голосами других посетителей.</p>
+                </div>
+            </section>
+        </div>
+
     </main>
 
     <!-- КОМПАКТНОЕ ПЕРЕКЛЮЧЕНИЕ СЛАЙДОВ -->
     <div id="slide-controls" aria-label="Переключение слайдов">
         <button type="button" class="slide-control-btn" onclick="prevSlide()" aria-label="Предыдущий слайд" title="Предыдущий слайд"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
-        <span id="bottom-slide-indicator" aria-live="polite">1 / 3</span>
+        <span id="bottom-slide-indicator" aria-live="polite">1 / 4</span>
         <button type="button" class="slide-control-btn" onclick="nextSlide()" aria-label="Следующий слайд" title="Следующий слайд"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
     </div>
 
@@ -568,12 +622,12 @@
     <script>
         let isAdmin = false;
         let currentMainPage = 1;
-        const totalMainPages = 3;
+        const totalMainPages = 4;
         let searchQuery1 = "";
         let searchQuery2 = "";
         let activeFleetFilter = "all";
 
-        // Функция переключения между 3 слайдами
+        // Переключение между слайдами
         function switchMainPage(num) {
             if (num < 1) num = totalMainPages;
             if (num > totalMainPages) num = 1;
@@ -586,7 +640,7 @@
             if (page) page.classList.remove('hidden');
 
             const fleetFilters = document.getElementById("fleet-filters");
-            if (fleetFilters) fleetFilters.classList.toggle("hidden", num === 3);
+            if (fleetFilters) fleetFilters.classList.toggle("hidden", num >= 3);
 
             const indicator = document.getElementById('bottom-slide-indicator');
             if (indicator) indicator.innerText = `${num} / ${totalMainPages}`;
@@ -600,6 +654,7 @@
                     player.dataset.videoId = "";
                 }
             }
+            if (num === 4) renderCarPoll();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -611,6 +666,32 @@
             if (e.key === 'ArrowLeft') prevSlide();
             if (e.key === 'ArrowRight') nextSlide();
         });
+
+        const CAR_POLL_OPTIONS = [
+            { id: "camry", label: "Toyota Camry 70" },
+            { id: "sonata", label: "Hyundai Sonata N Line" },
+            { id: "cobalt", label: "Chevrolet Cobalt" },
+            { id: "monjaro", label: "Geely Monjaro" }
+        ];
+        const CAR_POLL_KEY = "drive-car-poll-v1";
+
+        function loadCarPollData() {
+            const votes = Object.fromEntries(CAR_POLL_OPTIONS.map(option => [option.id, 0]));
+            try {
+                const saved = JSON.parse(localStorage.getItem(CAR_POLL_KEY) || "null");
+                if (!saved || typeof saved !== "object" || Array.isArray(saved)) return { votes, myVote: "" };
+                CAR_POLL_OPTIONS.forEach(option => {
+                    const count = Number(saved.votes?.[option.id]);
+                    votes[option.id] = Number.isSafeInteger(count) && count > 0 ? count : 0;
+                });
+                const myVote = CAR_POLL_OPTIONS.some(option => option.id === saved.myVote) ? saved.myVote : "";
+                return { votes, myVote };
+            } catch {
+                return { votes, myVote: "" };
+            }
+        }
+
+        let carPollData = loadCarPollData();
 
         // База автомобилей (Слайд 1 и 2)
         const DEFAULT_CARS = [
@@ -773,6 +854,37 @@
             const count = VIDEO_LIBRARY[currentVideoTheme].videos.length;
             currentVideoIndex = (currentVideoIndex + 1) % count;
             renderVideoPlaylist();
+        }
+
+        function renderCarPoll(message = "") {
+            const container = document.getElementById("poll-options");
+            if (!container) return;
+            const total = Object.values(carPollData.votes).reduce((sum, count) => sum + count, 0);
+            const hasVoted = Boolean(carPollData.myVote);
+            container.innerHTML = CAR_POLL_OPTIONS.map(option => {
+                const count = carPollData.votes[option.id];
+                const percent = total ? Math.round(count / total * 100) : 0;
+                return `
+                    <button type="button" class="poll-option ${carPollData.myVote === option.id ? "is-selected" : ""}" onclick="setCarPollVote('${option.id}')" aria-pressed="${carPollData.myVote === option.id}">
+                        <span class="poll-option-main"><span class="poll-option-name">${option.label}</span>${hasVoted ? `<span class="poll-option-stat">${count} голос. · ${percent}%</span>` : ""}</span>
+                        ${hasVoted ? `<span class="poll-bar" aria-hidden="true"><span class="poll-bar-fill" style="width:${percent}%"></span></span>` : ""}
+                    </button>`;
+            }).join("");
+            document.getElementById("poll-total").textContent = total ? `Голосов в этом браузере: ${total}` : "Пока нет голосов — станьте первым!";
+            document.getElementById("poll-status").textContent = message || (hasVoted ? "Ваш выбор отмечен. Нажмите другой вариант, чтобы изменить голос." : "Нажмите на вариант, чтобы проголосовать.");
+        }
+
+        function setCarPollVote(optionId) {
+            if (!CAR_POLL_OPTIONS.some(option => option.id === optionId)) return;
+            if (carPollData.myVote === optionId) {
+                renderCarPoll("Ваш голос уже учтён. Чтобы изменить его, выберите другой вариант.");
+                return;
+            }
+            if (carPollData.myVote) carPollData.votes[carPollData.myVote] = Math.max(0, carPollData.votes[carPollData.myVote] - 1);
+            carPollData.votes[optionId] += 1;
+            carPollData.myVote = optionId;
+            try { localStorage.setItem(CAR_POLL_KEY, JSON.stringify(carPollData)); } catch {}
+            renderCarPoll("Спасибо! Ваш голос учтён.");
         }
 
         function renderCatalog() {
@@ -951,108 +1063,35 @@
         };
     </script>
     <script>
-        /* ФОНОВАЯ МУЗЫКА (расслабляющий ambient: шум океана + мягкие аккорды), генерируется в браузере.
-           При каждом заходе / перезагрузке громкость = 50% (ничего не запоминается). */
+        /* ФОНОВАЯ МУЗЫКА: при каждом заходе / перезагрузке громкость = 50% (ничего не запоминается) */
         (function () {
             const DEFAULT_VOLUME = 0.5;
+            const audio  = document.getElementById('bg-music');
             const ctl    = document.getElementById('sound-control');
             const btn    = document.getElementById('sound-btn');
             const mute   = document.getElementById('sound-mute');
             const slider = document.getElementById('sound-slider');
             const pct    = document.getElementById('sound-percent');
-            if (!ctl || !btn || !slider) return;
+            if (!audio || !ctl || !btn || !slider) return;
 
-            let ctx = null, master = null, volume = DEFAULT_VOLUME, muted = false, failed = false;
+            let broken = false;
+            let unlocked = false;
 
-            function buildAudio() {
-                const AC = window.AudioContext || window.webkitAudioContext;
-                ctx = new AC();
-                const rate = ctx.sampleRate;
+            audio.loop = true;
+            audio.muted = false;
+            audio.volume = DEFAULT_VOLUME;
 
-                master = ctx.createGain(); master.gain.value = 0;
-                const comp = ctx.createDynamicsCompressor();
-                master.connect(comp); comp.connect(ctx.destination);
+            // iOS Safari не даёт менять audio.volume из JS — тогда оставляем только вкл/выкл
+            if (Math.abs(audio.volume - DEFAULT_VOLUME) > 0.01) ctl.classList.add('no-volume');
 
-                // общий канал + мягкая «комната» (реверб)
-                const bus = ctx.createGain();
-                const dry = ctx.createGain(); dry.gain.value = 0.7;
-                const wet = ctx.createGain(); wet.gain.value = 0.6;
-                const irLen = Math.floor(rate * 3.5);
-                const ir = ctx.createBuffer(2, irLen, rate);
-                for (let c = 0; c < 2; c++) {
-                    const d = ir.getChannelData(c);
-                    for (let i = 0; i < irLen; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 2.5);
-                }
-                const reverb = ctx.createConvolver(); reverb.buffer = ir;
-                bus.connect(dry); bus.connect(reverb); reverb.connect(wet);
-                dry.connect(master); wet.connect(master);
-
-                // ---- шум океана: коричневый шум + медленные «волны» ----
-                const nLen = rate * 6;
-                const nb = ctx.createBuffer(2, nLen, rate);
-                for (let c = 0; c < 2; c++) {
-                    const d = nb.getChannelData(c); let last = 0;
-                    for (let i = 0; i < nLen; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.5; }
-                    const N = 3000;                       // сглаживаем стык зацикливания
-                    for (let i = 0; i < N; i++) { const k = i / N; d[nLen - N + i] = d[nLen - N + i] * (1 - k) + d[i] * k; }
-                }
-                const noise = ctx.createBufferSource(); noise.buffer = nb; noise.loop = true;
-                const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 550; lp.Q.value = 0.4;
-                const swell = ctx.createGain(); swell.gain.value = 0.35;
-                noise.connect(lp); lp.connect(swell); swell.connect(bus);
-                const lfo = ctx.createOscillator(); lfo.frequency.value = 0.09;
-                const lfoVol = ctx.createGain(); lfoVol.gain.value = 0.25;
-                const lfoFreq = ctx.createGain(); lfoFreq.gain.value = 250;
-                lfo.connect(lfoVol); lfoVol.connect(swell.gain);
-                lfo.connect(lfoFreq); lfoFreq.connect(lp.frequency);
-                noise.start(); lfo.start();
-
-                // ---- мягкий пэд: аккорды плавно перетекают друг в друга ----
-                const chords = [
-                    [110.00, 164.81, 220.00, 261.63, 329.63, 493.88],   // Am9
-                    [ 87.31, 130.81, 174.61, 261.63, 329.63, 440.00],   // F
-                    [130.81, 196.00, 261.63, 329.63, 392.00, 493.88],   // Cmaj7
-                    [ 98.00, 146.83, 196.00, 246.94, 293.66, 392.00]    // G
-                ];
-                const padLp = ctx.createBiquadFilter(); padLp.type = 'lowpass'; padLp.frequency.value = 1300;
-                padLp.connect(bus);
-                const voices = chords[0].map((f, i) => {
-                    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.detune.value = (i % 2 ? 1 : -1) * 6;
-                    const g = ctx.createGain(); g.gain.value = 0.045;
-                    const t = ctx.createOscillator(); t.frequency.value = 0.07 + i * 0.031;
-                    const tg = ctx.createGain(); tg.gain.value = 0.02;
-                    t.connect(tg); tg.connect(g.gain);
-                    o.connect(g); g.connect(padLp);
-                    o.start(); t.start();
-                    return o;
-                });
-                let idx = 0;
-                setInterval(() => {
-                    idx = (idx + 1) % chords.length;
-                    voices.forEach((o, i) => o.frequency.setTargetAtTime(chords[idx][i], ctx.currentTime, 2.2));
-                }, 14000);
-
-                ctx.addEventListener('statechange', () => {
-                    if (ctx.state === 'running') { applyGain(1.5); removeUnlockers(); }
-                    render();
-                });
-            }
-
-            const isRunning = () => !!ctx && ctx.state === 'running';
-            function applyGain(tau) {
-                if (!master) return;
-                const g = muted ? 0 : Math.pow(volume, 1.6) * 1.6;
-                master.gain.setTargetAtTime(g, ctx.currentTime, tau);
-            }
-            function resume() { if (ctx && ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} } }
+            const isOff = () => broken || audio.paused || audio.muted || audio.volume === 0;
 
             function render() {
-                const off = failed || !isRunning() || muted || volume === 0;
-                const level = off ? 0 : (volume < 0.34 ? 1 : 2);
+                const level = isOff() ? 0 : (audio.volume < 0.34 ? 1 : 2);
                 btn.classList.remove('lvl-0', 'lvl-1', 'lvl-2');
                 btn.classList.add('lvl-' + level);
                 btn.classList.toggle('is-on', level > 0);
-                btn.classList.toggle('needs-tap', !failed && !isRunning());
+                btn.classList.toggle('needs-tap', !unlocked && !broken);
                 btn.setAttribute('aria-pressed', String(level > 0));
                 const label = level > 0 ? 'Выключить музыку' : 'Включить музыку';
                 btn.setAttribute('aria-label', label);
@@ -1060,39 +1099,50 @@
                     mute.setAttribute('aria-label', label);
                     mute.firstElementChild.className = 'fa-solid ' + (level > 0 ? 'fa-volume-high' : 'fa-volume-xmark');
                 }
-                const shown = Math.round(volume * 100);
+                const shown = Math.round(audio.volume * 100);
                 slider.value = shown;
                 slider.style.setProperty('--p', shown + '%');
-                pct.textContent = muted ? 'Выкл' : shown + '%';
-                if (failed) btn.title = 'Звук не поддерживается этим браузером';
+                pct.textContent = (audio.muted || audio.paused) ? 'Выкл' : shown + '%';
+                if (broken) { btn.title = 'Файл музыки не найден: onda-andar-sleep-mode.mp3'; }
             }
 
-            // Браузеры запрещают автозвук — запускаем при первом действии на странице
-            const unlockEvents = ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown'];
-            function onFirstGesture(e) { if (ctl.contains(e.target)) return; resume(); }
-            function removeUnlockers() { unlockEvents.forEach(ev => document.removeEventListener(ev, onFirstGesture, true)); }
+            function start() {
+                if (broken) return Promise.resolve();
+                return audio.play().then(() => { unlocked = true; removeUnlockers(); render(); })
+                                   .catch(() => { render(); });
+            }
+
+            // Браузеры блокируют автозвук — запускаем при первом действии на странице
+            const unlockEvents = ['pointerdown', 'touchstart', 'keydown'];
+            function onFirstGesture(e) {
+                if (ctl.contains(e.target)) return;   // клик по самой кнопке обработает она сама
+                start();
+            }
+            function removeUnlockers() {
+                unlockEvents.forEach(ev => document.removeEventListener(ev, onFirstGesture, true));
+            }
             unlockEvents.forEach(ev => document.addEventListener(ev, onFirstGesture, true));
 
             function toggleMute() {
-                if (failed) return;
-                if (!isRunning()) { muted = false; if (volume === 0) volume = DEFAULT_VOLUME; resume(); applyGain(1.5); render(); return; }
-                muted = !muted;
-                if (!muted && volume === 0) volume = DEFAULT_VOLUME;
-                applyGain(0.15); render();
+                if (audio.paused) { audio.muted = false; if (audio.volume === 0) audio.volume = DEFAULT_VOLUME; start(); return; }
+                audio.muted = !audio.muted;
+                if (!audio.muted && audio.volume === 0) audio.volume = DEFAULT_VOLUME;
+                render();
             }
 
-            // Десктоп: клик = вкл/выкл, наведение раскрывает ползунок. Телефон: тап открывает панель.
+            // Десктоп: клик = вкл/выкл, наведение раскрывает ползунок. Телефон: тап раскрывает панель.
             const canHover = window.matchMedia('(hover: hover)').matches;
             btn.addEventListener('click', () => {
-                if (canHover) { toggleMute(); }
-                else { ctl.classList.toggle('open'); if (!isRunning()) { resume(); applyGain(1.5); render(); } }
+                if (canHover) { toggleMute(); } else { ctl.classList.toggle('open'); if (!unlocked) start(); }
             });
             if (mute) mute.addEventListener('click', toggleMute);
 
             slider.addEventListener('input', () => {
-                volume = Number(slider.value) / 100;
-                if (volume > 0) muted = false;
-                resume(); applyGain(0.08); render();
+                const v = Number(slider.value) / 100;
+                audio.volume = v;
+                if (v > 0) audio.muted = false;
+                if (v > 0 && audio.paused) start();
+                render();
             });
 
             // Клавиатура: панель открывается при фокусе и закрывается по Esc
@@ -1101,8 +1151,13 @@
             document.addEventListener('keydown', e => { if (e.key === 'Escape') ctl.classList.remove('open'); });
             document.addEventListener('pointerdown', e => { if (!ctl.contains(e.target)) ctl.classList.remove('open'); });
 
-            try { buildAudio(); applyGain(0.01); resume(); } catch (e) { failed = true; console.warn('Web Audio недоступен:', e); }
+            audio.addEventListener('play', render);
+            audio.addEventListener('pause', render);
+            audio.addEventListener('volumechange', render);
+            audio.addEventListener('error', () => { broken = true; btn.disabled = true; render(); console.warn('Музыка: не найден файл onda-andar-sleep-mode.mp3 рядом с index.html'); });
+
             render();
+            start();   // попытка автозапуска (сработает, если браузер разрешает)
         })();
     </script>
 </body>
